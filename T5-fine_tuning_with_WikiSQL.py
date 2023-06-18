@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-# In[1]:
+#this is the python code to fine-tune T5 model on WikiSQL dataset
 
 
 
