@@ -1,5 +1,7 @@
 # Ignore all hidden files
 .*
 
-# Ignore all folders named "content"
+# Ignore all folders containing extensive data
 /content/
+/Training_set_IMDB/
+
