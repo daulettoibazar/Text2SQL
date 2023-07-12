@@ -4,4 +4,5 @@
 # Ignore all folders containing extensive data
 /content/
 /Training_set_IMDB/
-
+/LoRA_adapted_T5/
+/T5-fine-tuned-with-IMDB-wikisql/
