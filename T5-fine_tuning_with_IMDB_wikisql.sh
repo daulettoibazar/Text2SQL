@@ -15,5 +15,7 @@
 #run the application:
 cd /home/toibazd/Data/Text2SQL/ 
 module load cuda/11.4.4
-python -u T5-fine_tuning_with_IMDB_wikisql.py
+conda activate base
+
+Python3 -u T5-fine_tuning_with_IMDB_wikisql.py
 
