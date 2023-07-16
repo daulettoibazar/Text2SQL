@@ -18,4 +18,8 @@
 * T5-wikisql_fine_tuning.sh - IBEX shell script to fine-tune base T5 on WikiSQL dataset
 * Testing_T5_WikiSQL.ipynb - notebook to make inferences on T5 fine-tuned on WikiSQL dataset
 * WikiSQL.26104292.err/.out - Fine-tuning process files of base T5 on WikiSQL
+* /content - repo to base T5-small model fine-tuned on WikiSQL
+* /LoRA_adapted_T5 - repo to wikisql-T5-small model LoRA adapted to IMDB
+* /T5-fine-tuned-with-IMDB-wikisql - repo to wikisql-T5-small fully fine-tuned on IMDB
+* /Training_set_IMDB - repo containing training and testing datasets: train - csv file; test - dataset object;
 
