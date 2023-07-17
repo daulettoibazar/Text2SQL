@@ -1,7 +1,0 @@
-[2023-07-17 21:44:28,964] [INFO] [real_accelerator.py:110:get_accelerator] Setting ds_accelerator to cuda (auto detect)
-mapping both datasets
-mapped both dataset
-Documents we have: tokenizer_dataset for seen and tokenized_dataset_2 for unseen data
-
-
- Running executions for seen dataset

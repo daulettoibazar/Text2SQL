@@ -179,10 +179,7 @@ failed_predicted_SQL = []
 
 for sample in tokenized_dataset:
     p,l = evaluate_peft_model(sample)
-    print("all_executions_overall: ", len(all_executions_overall))
-    print("all_executions_accuracy: ",len(all_executions_accuracy))
-    print("accurate_executions: ", len(accurate_executions))
-    print("failed_executions: ", len(failed_executions))
+
 
 
 print("All SQL runs:", len(all_executions_overall))
