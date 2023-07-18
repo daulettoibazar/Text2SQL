@@ -2,9 +2,12 @@
 .*
 
 # Ignore all folders containing extensive data
-/content/
 /Training_set_IMDB/
-/LoRA_adapted_T5/
+/LoRA_IMDB_adapted_T5_wikisql/
+/T5-Finetuned-with-IMDB-Spider/
+/T5-small-fine-tuned-Spider/
+/T5-small-fine-tuned-wikisql/
 /T5-fine-tuned-with-IMDB-wikisql/
 *.out
 *.err
+/
