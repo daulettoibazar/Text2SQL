@@ -16,5 +16,5 @@
 module load cuda/11.4.4
 source activate base
 cd /home/toibazd/Data/Text2SQL/
-python -u Model_evaluation_FT.py
+python -u Model_evaluation_Spider.py
 
