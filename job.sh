@@ -2,8 +2,8 @@
 #SBATCH -N 1
 #SBATCH --partition=batch
 #SBATCH -J Evaluation_FT
-#SBATCH -o Evaluation_FT.%J.out
-#SBATCH -e Evaluation_FT.%J.err
+#SBATCH -o testing_evaluation.%J.out
+#SBATCH -e testing_evaluation.%J.err
 #SBATCH --mail-user=daulet.toibazar@kaust.edu.sa
 #SBATCH --mail-type=ALL
 #SBATCH --time=06:00:00

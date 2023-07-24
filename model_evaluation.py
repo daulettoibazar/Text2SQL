@@ -3,7 +3,6 @@ import torch
 import pandas as pd
 import fire
 from datasets import Dataset
-import evaluate
 import numpy as np
 from tqdm import tqdm
 import mysql.connector
@@ -30,8 +29,6 @@ def main(
         device = "cpu"
     print(device)
 
-
-
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
     model = T5ForConditionalGeneration.from_pretrained(model_name).to(device)
     model.eval()
@@ -44,19 +41,15 @@ def main(
 
 
     test_set_seen = Dataset.from_pandas(df)
-
-
     test_set_seen.set_format(type = "torch")
 
     print(test_set_seen["SQL"][1])
     print(test_set_seen["Text"][1])
 
-
-
     def convert_to_features(example_batch, padding = "max_length",input_max = input_max, output_max = output_max):
-        inputs = tokenizer.batch_encode_plus(example_batch["Text"], max_length=input_max, is_split_into_words = False, padding='max_length', truncation=True, return_tensors = "pt")
+        inputs = tokenizer.batch_encode_plus(example_batch["Text"], max_length=input_max, is_split_into_words = False, padding=padding, truncation=True, return_tensors = "pt")
         
-        targets = tokenizer.batch_encode_plus(example_batch["SQL"], max_length=output_max, padding = "max_length",truncation = True)
+        targets = tokenizer.batch_encode_plus(example_batch["SQL"], max_length=output_max, padding = padding,truncation = True)
         if padding == "max_length":
             targets["inputs_ids"] = [
                 [(l if l != tokenizer.pad_token_id else -100) for l in target] for target in targets["input_ids"]
@@ -70,39 +63,33 @@ def main(
         prediction = tokenizer.decode(outputs[0].detach().cpu().numpy(), skip_special_tokens=True)
         label = np.where(sample['labels'] != -100, sample['labels'], tokenizer.pad_token_id)
         label = tokenizer.decode(label, skip_special_tokens=True)
-        _ = execution_accuracy(prediction, label)
-        return prediction, label
+        execution_accuracy(prediction, label)
 
     def execution_accuracy(prediction, label):
-        global all_executions_overall
-        global all_executions_accuracy
-        global accurate_executions
-        global failed_executions
         try:
             
             cursor.execute(label)
             result_label = cursor.fetchall()
-            all_executions_overall += 1
+            all_executions_overall.append(1)
             try:
                 cursor.execute(prediction)
                 result_pred = cursor.fetchall()
-                all_executions_accuracy += 1
+                all_executions_accuracy.append(1)
                 if len(result_label)>10:
                     if len(result_label) == len(result_pred):
-                        accurate_executions += 1 
+                        accurate_executions.append(1)
                 elif result_label == result_pred:
-                    accurate_executions += 1
+                    accurate_executions.append(1)
                 else:
                     for_checking_label.append(label)
                     for_checking_prediction.append(prediction)
                     
             except:
-                failed_executions += 1
+                failed_executions.append(1)
                 failed_predicted_SQL.append(prediction)
                     
         except:
             failed_label_SQL.append(label)
-        return None
 
     connection = mysql.connector.connect(
         host="relational.fit.cvut.cz",
@@ -119,33 +106,30 @@ def main(
 
     print("mapped both dataset")
     print("Document we have: tokenized_dataset for seen data")
-
-
     print("\n\n Running executions for seen dataset")
-    all_executions_overall = 0
-    failed_executions = 0
-    all_executions_accuracy = 0
-    accurate_executions = 0
+
+    all_executions_overall = []
+    failed_executions = []
+    all_executions_accuracy = []
+    accurate_executions = []
     for_checking_label = []
     for_checking_prediction = []
     failed_label_SQL = []
     failed_predicted_SQL = []
 
-
-
-    with tqdm(total=len(tokenized_dataset), ncols=50, ascii=True) as pbar:
+    with tqdm(total=len(tokenized_dataset), ncols=100, ascii=True) as pbar:
         for sample in tokenized_dataset:
-            p,l = evaluate_peft_model(sample)
-            pbar.set_postfix({'All execs': all_executions_overall, 'Accurrate exec': accurate_executions})
+            evaluate_peft_model(sample)
+            pbar.set_postfix({'Ac/Ex': accurate_executions})
             pbar.update()
 
 
 
-    print("All SQL runs: ", all_executions_overall)
-    print("Model SQLs that failed: ", failed_executions)
-    print(f"Execution rate: {all_executions_accuracy/all_executions_overall*100}%")
-    print(f"Execution rate: {100 - failed_executions/all_executions_overall*100}%")
-    print(f"Execution accuracy: {accurate_executions/all_executions_accuracy*100}%")
+    print("All SQL runs: ", len(all_executions_overall))
+    print("Model SQLs that failed: ", len(failed_executions))
+    print(f"Execution rate: {len(all_executions_accuracy)/len(all_executions_overall)*100}%")
+    print(f"Execution rate: {100 - len(failed_executions)/len(all_executions_overall)*100}%")
+    print(f"Execution accuracy: {len(accurate_executions)/len(all_executions_accuracy)*100}%")
 
     failed_label_sql_df = pd.DataFrame(failed_label_SQL)
     failed_predicted_sql_df = pd.DataFrame(failed_predicted_SQL)
@@ -154,7 +138,9 @@ def main(
         'Prediction': for_checking_prediction
     })
 
-    
+    if not os.path.exists(parent_directory):
+        os.makedirs(parent_directory)
+
     not_equals.to_csv(parent_directory+ "/" + model_name+ "_Not_accurate.csv", index = False)
     failed_label_sql_df.to_csv(parent_directory+"/" + model_name + "_Failed_labels.csv", index = False)
     failed_predicted_sql_df.to_csv(parent_directory+ "/" + model_name +"_Failed_predicted.csv", index = False)
