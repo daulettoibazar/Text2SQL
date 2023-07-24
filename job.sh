@@ -13,8 +13,11 @@
 #SBATCH --constraint=v100&local_200G
 
 #run the application:
-module load cuda/11.4.4
+module load cudnn/8.8.1-cuda11.8.0
 source activate base
 cd /home/toibazd/Data/Text2SQL/
-python -u Model_evaluation_Spider.py
+python testing_evaluation.py --model_name T5-Finetuned-with-IMDB-Spider \
+--tokenizer_path T5-Finetuned-with-IMDB-Spider \
+--dataset_path Training_set_IMDB/testing_set_no_target.csv \
+--input_max 128 --output_max 256 
 
